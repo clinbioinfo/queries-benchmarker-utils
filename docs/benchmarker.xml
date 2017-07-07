@@ -1,0 +1,676 @@
+<queries-benchmarker>
+  <repository-list>
+<!--     <repository>
+      <name>bdm</name>
+      <type>SQL</type>
+      <vendor>Oracle</vendor>
+      <config-file>./conf/bdm.ini</config-file>
+    </repository> -->
+ 	<repository>
+      <name>allegro</name>
+      <type>REST</type>
+      <config-file>./conf/allegro.ini</config-file>
+    </repository>
+<!--     <target>
+      <name>capsenta</name>
+      <type>SPARQL</type>
+      <config-file>./conf/capsenta.ini</config-file>
+    </target> -->
+  </repository-list>
+  <test-set-list>
+    <test-set>
+      <name>ANALYTE_AUTOCOMPLETE_1</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX pnav: <http://annotation.astrazeneca.net/pipeline/navigation/>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			SELECT ?text ?analyte ?type
+			{
+			  ?analyte pnav:targetNameSymbol ?text .
+			  FILTER(REGEX(?text,"ir","i")) .
+			  ?analyte a ?technology .
+			  ?technology skos:prefLabel ?type .
+			  ?technology rdfs:subClassOf* core:Technology . 
+			}
+		  ]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>ANALYTE_AUTOCOMPLETE_2</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX pnav: <http://annotation.astrazeneca.net/pipeline/navigation/>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			SELECT ?text ?analyte ?type
+			{
+			  ?analyte pnav:targetNameSymbol ?text .
+			  FILTER(REGEX(?text,"irl","i")) .
+			  ?analyte a ?technology .
+			  ?technology skos:prefLabel ?type .
+			  ?technology rdfs:subClassOf* core:Technology . 
+			}
+		  ]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>STUDIES_FOR_ANALYTE</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/> 
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/> 
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/> 
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/>
+			PREFIX pnav: <http://annotation.astrazeneca.net/pipeline/navigation/>
+			SELECT DISTINCT ?study ?studyId ?studyTitle
+			{ 
+				BIND (<http://ampliseq.thermofisher.com/AMPL19498079> AS ?analyte) .
+				?study core:hasSubject/core:hasSample/core:hasMeasurement/core:measuredBy ?analyte .
+				?study a core:Study .
+				?study skos:altLabel ?studyId . 
+			    ?study skos:prefLabel ?studyTitle .
+			}
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>ENTITY_COUNTS</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			select         (COUNT(?study) AS ?studyCount) (COUNT(?drug) AS ?drugCount) (COUNT(?indication) AS ?indicationCount)
+			(COUNT(?project) AS ?projectCount) (COUNT(?target) AS ?targetCount) (COUNT(?ta) AS ?taCount) 
+			(COUNT(?subject) AS ?subjectCount) (COUNT(?sample) AS ?sampleCount) (COUNT(?measurement) AS ?measurementCount)
+			WHERE {
+			  {    ?study a core:Study .  }
+			  UNION 
+			  {    ?drug a core:Drug .  }
+			  UNION 
+			  {    ?indication a core:Indication .  }
+			  UNION 
+			  {    ?project a core:Project .  }
+			  UNION 
+			  {    ?target a core:Target .  }
+			  UNION 
+			  {    ?ta a core:TherapeuticArea .  }
+			  UNION 
+			  {    ?subject a core:Subject .  }
+			  UNION 
+			  {    ?sample a core:BiologicalSample .  }
+			  UNION 
+			  {    ?measurement rdfs:subClassOf* core:Measurement .  }
+			}
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>PATIENT_COUNT_4_STUDIES</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			SELECT distinct ?studyLabel (COUNT (?subject) AS ?patientCount)
+			WHERE {
+				?study a core:Study .
+				?study skos:altLabel ?studyLabel .
+				?study core:hasSubject ?subject .
+			}
+			GROUP BY ?studyLabel
+			ORDER BY ?studyLabel
+		  ]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>STUDIES_4_TECHNOLOGIES</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/>
+			 
+			SELECT DISTINCT ?techLabel ?studyLabel ?studyTitle
+			{
+			  {
+			    ?technology rdfs:subClassOf+ core:Technology .
+			    ?technology skos:prefLabel ?techLabel .
+			    ?techinstance rdf:type ?technology .
+			    ?study core:hasSubject/core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			    FILTER(?technology != bdm:IfnInducibleScore ) .
+			  }
+			  UNION
+			  {
+			    BIND(bdm:DiseaseAssessment AS ?platform) .
+			    ?platform skos:prefLabel ?techLabel .
+			    ?technology rdfs:subClassOf* ?platform .
+			    ?techinstance rdf:type ?technology .
+			    ?study core:hasSubject/core:hasMeasurement/core:hasComponent/core:measuredBy ?techinstance . 
+			  }
+			  ?study skos:altLabel ?studyLabel .
+			  ?study skos:prefLabel ?studyTitle .
+			}
+			ORDER BY ?techLabel
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>TECHNOLOGY_COUNTS_4_STUDY_1</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			 
+			SELECT DISTINCT ?techLabel (COUNT(?techinstance) AS ?tcount)
+			WHERE {
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP152> AS ?study) .
+			  ?technology rdfs:subClassOf+ core:Technology .
+			  ?technology skos:prefLabel ?techLabel .
+			  ?techinstance rdf:type ?technology .
+			  ?study core:hasSubject/core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			  FILTER(?technology != bdm:IfnInducibleScore ) .
+			}
+			GROUP BY ?techLabel
+			ORDER BY ?techLabel
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>TECHNOLOGY_COUNTS_4_STUDY_2</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			 
+			SELECT DISTINCT ?techLabel (COUNT(?techinstance) AS ?tcount)
+			WHERE {
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/ANG2> AS ?study) .
+			  ?technology rdfs:subClassOf+ core:Technology .
+			  ?technology skos:prefLabel ?techLabel .
+			  ?techinstance rdf:type ?technology .
+			  ?study core:hasSubject/core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			  FILTER(?technology != bdm:IfnInducibleScore ) .
+			}
+			GROUP BY ?techLabel
+			ORDER BY ?techLabel
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>SUBJECT_COUNT_FOR_TECHNOLOGY_AND_STUDY</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			 
+			SELECT ?techLabel (COUNT(DISTINCT ?subject) AS ?subjectCount)
+			WHERE {
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP152> AS ?study) .
+			  ?technology rdfs:subClassOf+ core:Technology .
+			  ?technology skos:prefLabel ?techLabel .
+			  ?techinstance rdf:type ?technology .
+			  ?study core:hasSubject ?subject .
+			  ?subject core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			  FILTER(?technology != bdm:IfnInducibleScore ) .
+			}
+			GROUP BY ?techLabel
+			ORDER BY ?techLabel
+		  	]]></query>
+		</query-group>
+		<!-- <query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>SAMPLE_COUNT_4_TECHNOLOGIES</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/>
+			 
+			SELECT DISTINCT ?techLabel (COUNT (distinct ?sample) AS ?sampleCount)
+			{
+			  {
+			    ?technology rdfs:subClassOf+ core:Technology .
+			    ?technology skos:prefLabel ?techLabel .
+			    ?techinstance rdf:type ?technology .
+			    ?study core:hasSubject/core:hasSample ?sample .
+			    ?sample core:hasMeasurement/core:measuredBy ?techinstance .
+			    FILTER(?technology != bdm:IfnInducibleScore ) .
+			  }
+			}
+			GROUP BY ?techLabel
+			ORDER BY ?techLabel
+		  ]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>SUBJECT_COUNT_4_TECHNOLOGIES</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/>
+			 
+			SELECT DISTINCT ?techLabel (COUNT (distinct ?subject) AS ?subjectCount)
+			{
+			  {
+			    ?technology rdfs:subClassOf+ core:Technology .
+			    ?technology skos:prefLabel ?techLabel .
+			    ?techinstance rdf:type ?technology .
+			    ?study core:hasSubject ?subject .
+			    ?subject core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			    FILTER(?technology != bdm:IfnInducibleScore ) .
+			  }
+			}
+			GROUP BY ?techLabel
+			ORDER BY ?techLabel
+		   ]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>STUDY_DETAILS</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX data: <http://data.rd.astrazeneca.net/bdm/>
+			CONSTRUCT {
+			  ?study data:studyId ?studyId ;
+			         data:title ?studyTitle ;
+			         data:indications ?indication ;
+			         data:projects ?project ;
+			         data:drugs ?drug .
+			  ?indication data:label ?indicationPrefLabel ;
+			              data:altLabel ?indicationAltLabel ;
+			              data:tas ?ta .
+			  ?ta data:label ?taLabel ;
+			      data:altLabel ?taAltLabel .
+			  ?drug data:label ?drugLabel ;
+			        data:targets ?target .
+			  ?target data:label ?targetLabel .
+			  ?project data:label ?projectLabel .        
+			}
+			WHERE {
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP152> AS ?study) .
+			  ?study a core:Study .
+			  ?study skos:altLabel ?studyId . 
+			  ?study skos:prefLabel ?studyTitle . 
+			  OPTIONAL { 
+			    ?study core:hasIndication ?indication .
+			    ?indication skos:prefLabel ?indicationPrefLabel .
+			    ?indication skos:altLabel ?indicationAltLabel .
+			  }
+			  OPTIONAL { 
+			    ?indication core:hasTherapeuticArea ?ta .
+			    ?ta skos:prefLabel ?taLabel .
+			    ?ta skos:altLabel ?taAltLabel .
+			  }
+			  OPTIONAL { 
+			    ?study core:hasDrug ?drug .
+			    ?drug skos:prefLabel ?drugLabel .
+			    ?drug core:hasTarget ?target .
+			  }
+			  OPTIONAL { 
+			    ?target skos:prefLabel ?targetLabel .
+			  }
+			  OPTIONAL { 
+			    ?study core:hasProject ?project .
+			    ?project skos:prefLabel ?projectLabel .
+			  }
+			}
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>EXPORT_4_STUDY_AND_TECHNOLOGY</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/> 
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/> 
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/> 
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/> 
+			 
+			SELECT DISTINCT ?studyId ?techLabel ?cohort ?gender ?race ?ethnicity ?weight ?weightUnit ?height ?heightUnit ?disease 
+			?measurement ?measurementLabel ?measurementAltLabel ?value ?unit ?timepoint ?timepointUnit ?isValid ?isBaseline ?ratioToBaseline ?changeFromBaseline
+			{ 
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP1067> AS ?study) .
+			  BIND ("Autoantibody assay" AS ?techLabel) .
+			  ?study a core:Study .
+			  ?study skos:altLabel ?studyId . 
+			  ?study core:hasSubject ?subjectBN . 
+			  OPTIONAL {?subjectBN bdm:hasCohort ?cohort .}
+			  OPTIONAL {?subjectBN bdm:hasRace ?race .}
+			  OPTIONAL {?subjectBN bdm:hasEthnicity ?ethnicity .}
+			  OPTIONAL {?subjectBN bdm:hasWeight ?weight .}
+			  OPTIONAL {?subjectBN bdm:hasWeightUnit ?weightUnit .}
+			  OPTIONAL {?subjectBN bdm:hasHeight ?height .}
+			  OPTIONAL {?subjectBN bdm:hasHeightUnit ?heightUnit .}
+			  OPTIONAL {?subjectBN bdm:hasDisease ?disease .}
+			  OPTIONAL {?subjectBN bdm:hasGender/skos:prefLabel ?gender .}
+			  ?subjectBN core:hasMeasurement/core:hasComponent ?measurement .
+			  ?measurement core:measuredBy ?techinstance .
+			  ?technology rdfs:subClassOf* core:Technology . 
+			  ?technology skos:prefLabel ?techLabel .
+			  ?measurement skos:prefLabel ?measurementLabel ;
+			               core:hasValue ?value ;
+			               core:hasUnit ?unit .
+			  OPTIONAL {?measurement skos:altLabel ?measurementAltLabel .}
+			  OPTIONAL {?measurement bdm:hasTimepoint ?timepoint ;
+			                         bdm:hasTimepointUnit ?timepointUnit .}
+			  OPTIONAL {?measurement bdm:isValid ?isValid .}
+			  OPTIONAL {?measurement bdm:isBaseline ?isBaseline .}
+			  OPTIONAL {?measurement bdm:ratioToBaseline ?ratioToBaseline .}
+			  OPTIONAL {?measurement bdm:changeFromBaseline ?changeFromBaseline .}
+			} 
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>SUBJECTS_FOR_STUDY</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+			PREFIX core: <http://vocab.rd.astrazeneca.net/core/>
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/>
+			PREFIX data: <http://data.rd.astrazeneca.net/bdm/>
+			CONSTRUCT {
+			  ?study data:studyId ?studyId ;
+			         data:patients ?subjectBN .
+			  ?subjectBN data:id ?subjectBN ; 
+			             data:species ?species ;
+			             data:gender ?gender ;
+			             data:genderLabel ?genderLabel ;
+			             data:race ?race ;
+			             data:ethnicity ?ethnicity ;
+			             data:weight ?weight ;
+			             data:weightUnit ?weightUnit ;
+			             data:cohort ?cohort ;
+			             data:disease ?disease ;
+			             data:samples ?sample .
+			  ?sample data:timepoint ?timepoint ;
+			          data:timepointUnit ?timepointUnit .
+			 
+			}
+			WHERE {
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP152> AS ?study) .
+			  ?study a core:Study .
+			  ?study skos:altLabel ?studyId . 
+			  ?study core:hasSubject ?subjectBN . 
+			  OPTIONAL {?subjectBN core:hasSpecies ?species} .
+			  OPTIONAL {?subjectBN bdm:hasGender/skos:prefLabel ?gender }.
+			  OPTIONAL {?subjectBN bdm:hasGender/skos:altLabel ?genderLabel }.
+			  OPTIONAL {?subjectBN bdm:hasRace ?race} .
+			  OPTIONAL {?subjectBN bdm:hasEthnicity ?ethnicity} .
+			  OPTIONAL {?subjectBN bdm:hasWeight ?weight} .
+			  OPTIONAL {?subjectBN bdm:hasWeightUnit ?weightUnit} .
+			  OPTIONAL {?subjectBN bdm:hasAge/core:hasValue ?age} .
+			  OPTIONAL {?subjectBN bdm:hasAge/core:hasUnit ?ageUnit} .
+			  OPTIONAL {?subjectBN bdm:hasCohort ?cohort} .
+			  OPTIONAL {?subjectBN bdm:hasDisease/skos:prefLabel ?disease} .
+			  OPTIONAL {?subjectBN core:hasSample ?sample} .
+			  OPTIONAL {?sample bdm:hasTimepoint ?timepoint } .
+			  OPTIONAL {?sample bdm:hasTimepointUnit ?timepointUnit } .
+			}
+		  	]]></query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+    <test-set>
+      <name>ANALYTES_FOR_TECHNOLOGY_STUDY</name>
+      <desc>N/A</desc>
+      <query-group-list>
+		<query-group>
+		  <target-list>
+		    <target>allegro</target>
+		    <!-- <target>capsenta</target> -->
+		  </target-list>
+		  <query><![CDATA[
+		  	PREFIX core: <http://vocab.rd.astrazeneca.net/core/> 
+			PREFIX bdm: <http://vocab.rd.astrazeneca.net/bdm/> 
+			PREFIX azlc: <http://vocab.rd.astrazeneca.net/labcodes/> 
+			PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> 
+			PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+			PREFIX skos: <http://www.w3.org/2004/02/skos/core#> 
+			PREFIX azsm: <http://data.rd.astrazeneca.net/labcodes/SampleMaterial/> 
+			 
+			SELECT DISTINCT ?techinstance ?name
+			{ 
+			  BIND (<http://data.rd.astrazeneca.net/bdm/study/CP1013> AS ?study) .
+			  BIND ("Autoantibody assay" AS ?techLabel) .
+			  ?study core:hasSubject/core:hasSample/core:hasMeasurement/core:measuredBy ?techinstance .
+			  ?techinstance rdf:type ?technology .
+			  ?technology skos:prefLabel ?techLabel .
+			  ?technology rdfs:subClassOf* core:Technology . 
+			  ?techinstance skos:prefLabel ?name .
+			} 
+			ORDER BY ?name
+			]]>				
+		</query>
+		</query-group>
+<!-- 		<query-group>
+		  <target-list>
+		    <target>bdm</target>
+		  </target-list>
+		  <query><![CDATA[]]></query>
+		</query-group> -->
+      </query-group-list>
+    </test-set>
+  </test-set-list>
+</queries-benchmarker>

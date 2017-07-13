@@ -12,6 +12,7 @@ use Template;
 
 use QueriesBenchmarker::Utils::Logger;
 use QueriesBenchmarker::Utils::DBUtil::Factory;
+use QueriesBenchmarker::Report::File::JSON::Writer;
 
 use constant TRUE  => 1;
 use constant FALSE => 0;
@@ -189,6 +190,8 @@ sub runBenchmarkTests {
     $self->_generate_text_report(@_);
 
     $self->_generate_html_report(@_);
+
+    $self->_generate_json_report(@_);
 }
 
 
@@ -304,6 +307,24 @@ sub _generate_text_report {
 
     print "Wrote report file '$outfile'\n";
     
+}
+
+sub _generate_json_report {
+
+    my $self = shift;
+
+    my $outfile = $self->getOutdir() . '/' . File::Basename::basename($0) . '.json';
+
+    my $writer = new QueriesBenchmarker::Report::File::JSON::Writer(
+        outfile => $outfile,
+        lookup  => $self->{_time_lookup}
+        );
+
+    if (!defined($writer)){
+        $self->{_logger}->logconfess("Could not instantiate QueriesBenchmarker::Report::File::JSON::Writer");
+    }
+
+    $writer->writeFile();    
 }
 
 sub _generate_html_report {

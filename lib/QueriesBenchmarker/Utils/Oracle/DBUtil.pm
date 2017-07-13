@@ -56,22 +56,24 @@ sub _get_array_ref {
 
     $self->{_logger}->info("About to execute SQL query '$psql' (database '$database' server '$server' username '$username')");
 
-    my $start_time = Benchmark->new;
+    my $start_time = time();
 
     my $arrayRef = $self->{_dbh}->selectall_arrayref($sql);
     if (!defined($arrayRef)){
         $self->{_logger}->logconfess("arrayRef was not defined for query '$sql' (database '$database' server '$server' username '$username')");
     }
     
-    my $end_time = Benchmark->new;
+    my $end_time = time();
 
-    my $time_diff = timediff($end_time, $start_time);
+    my $time_diff = $end_time - $start_time;
+
+    my $count = scalar(@{$arrayRef});
 
     $self->{_time_record} = {
-        'start_time' => $start_time, 
-        'end_time'   =>  $end_time,
-        'time_diff'  => $time_diff,
-        'took'       => timestr($time_diff)
+        'start_time'   => $start_time, 
+        'end_time'     =>  $end_time,
+        'time_diff'    => $time_diff,
+        'record_count' => $count
     };
 
     return $arrayRef;    

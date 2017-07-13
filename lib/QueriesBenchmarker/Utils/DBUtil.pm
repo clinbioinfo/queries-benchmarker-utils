@@ -2,6 +2,7 @@ package QueriesBenchmarker::Utils::DBUtil;
 
 use Moose;
 use Benchmark;
+use Time::HiRes qw( time );
 
 use QueriesBenchmarker::Utils::Config::Manager;
 
@@ -11,6 +12,10 @@ use constant TRUE  => 1;
 use constant FALSE => 0;
 
 use constant DEFAULT_USE_PROXY_ACCOUNT => FALSE;
+
+use constant DEFAULT_USERNAME => getlogin || getpwuid($<) || $ENV{USER} || "sundaramj";
+
+use constant DEFAULT_OUTDIR => '/tmp/' . DEFAULT_USERNAME . '/' . File::Basename::basename($0) . '/' . time();
 
 ## Singleton support
 my $instance;
@@ -59,6 +64,14 @@ has 'port_number' => (
     reader => 'getPortNumber'
     );
 
+has 'outdir' => (
+    is     => 'rw',
+    isa    => 'Str',
+    writer => 'setOutdir',
+    reader => 'getOutdir',
+    required => FALSE,
+    default  => DEFAULT_OUTDIR
+    );
 
 sub getInstance {
 

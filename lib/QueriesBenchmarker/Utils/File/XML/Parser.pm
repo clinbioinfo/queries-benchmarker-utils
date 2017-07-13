@@ -239,12 +239,13 @@ sub _create_sparql_repository_record {
 sub _create_test_record {
 
     my $self = shift;
-    my ($query_name, $query, $target_name) = @_;
+    my ($query_name, $query, $target_name, $desc) = @_;
 
     my $test_record = new QueriesBenchmarker::Utils::Test::Record(
         target_name => $target_name,
         query       => $query,
-        query_name  => $query_name
+        query_name  => $query_name,
+        desc        => $desc
         );
 
     if (!defined($test_record)){

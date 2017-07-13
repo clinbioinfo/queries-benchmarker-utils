@@ -181,11 +181,11 @@ sub _process_query_group {
 
     my $target = $target_list->first_child('target');
 
-    $self->_create_test_record($name, $query, $target->text());
+    $self->_create_test_record($name, $query, $target->text(), $desc);
 
     while ($target = $target->next_sibling()){
 
-        $self->_create_test_record($name, $query, $target->text());        
+        $self->_create_test_record($name, $query, $target->text(), $desc);        
     }
 }
 

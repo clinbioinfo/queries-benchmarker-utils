@@ -30,6 +30,13 @@ has 'target_name' => (
     required => FALSE
     );
 
+has 'desc' => (
+    is       => 'rw',
+    isa      => 'Str',
+    writer   => 'setDesc',
+    reader   => 'getDesc',
+    required => FALSE
+    );
 
 sub BUILD {
 

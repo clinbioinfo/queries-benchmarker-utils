@@ -255,7 +255,7 @@ sub _run_benchmark_tests {
             $self->{_logger}->logconfess("timeRecord was not defined");
         }
 
-        $self->{_time_lookup}->{$query_name}->{$target_name} = $timeRecord;
+        push(@{$self->{_time_lookup}->{$query_name}}, [$target_name, $timeRecord, $record->getDesc()]);
 
         if ($record_ctr > 4){
             last;
@@ -278,9 +278,11 @@ sub _generate_text_report {
         
         print OUTFILE "Query: $query_name\n";
         
-        foreach my $target (sort keys %{$self->{_time_lookup}->{$query_name}}){
-        
-            my $time_record = $self->{_time_lookup}->{$query_name}->{$target};
+        foreach my $list_ref (@{$self->{_time_lookup}->{$query_name}}){
+
+            my $target_name = $list_ref->[0];
+            my $time_record = $list_ref->[1];
+            my $desc = $list_ref->[2];
         
             my $start_time = $time_record->{start_time};
         
@@ -296,7 +298,7 @@ sub _generate_text_report {
 
             # my $took = $time_record->{took};
         
-            print OUTFILE "\t$target start time : '$start_time' end time : '$end_time' time diff '$time_diff' record count '$record_count'\n"
+            print OUTFILE "\t$target_name start time : '$start_time' end time : '$end_time' time diff '$time_diff' record count '$record_count' desc '$desc'\n"
             # print OUTFILE "\t$target time diff '$time_diff' time took: $took\n"
         }
     }
